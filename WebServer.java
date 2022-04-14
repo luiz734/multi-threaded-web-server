@@ -48,7 +48,7 @@ final class HttpRequest implements Runnable {
    }
    private void processRequest() throws Exception {
       InputStream is = socket.getInputStream();
-      OutputStream os = socket.getOutputStream();
+      DataOutputStream os = new DataOutputStream(socket.getOutputStream());
       // Set up input stream filters.
       BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
@@ -81,10 +81,10 @@ final class HttpRequest implements Runnable {
       String contentTypeLine = null;
       String entityBody = null;
       if (fileExists) {
-         statusLine = "200" + CRLF;
+         statusLine = "HTTP/1.0 200 OK" + CRLF;
          contentTypeLine = "Content-type: " + contentType( fileName ) + CRLF;
       } else {
-         statusLine = "404" + CRLF;
+         statusLine = "HTTP/1.0 404 NotFound" + CRLF;
          contentTypeLine = "text/html" + CRLF;
          entityBody = 
             "<HTML>" +
@@ -104,7 +104,7 @@ final class HttpRequest implements Runnable {
          sendBytes(fis, os);
          fis.close();
       } else {
-         os.write((statusLine + contentTypeLine + entityBody).getBytes());
+         os.write((entityBody).getBytes());
       }
 
       //close the connection
